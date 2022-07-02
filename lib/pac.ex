@@ -1,12 +1,8 @@
 defmodule Pac do
-  def user,
-    do:
-      IO.gets("Enter 'p' for paper ,'s' Scissors or 'r' for rock :")
-      |> String.split("\n")
-      |> List.first()
-      |> String.to_charlist()
-
-  def play() do
+    @doc """
+    Pac.play() to start the game and you and computer play Rock/paper/scissors
+  """
+  def play do
     user = user()
     cpu = Enum.random(['r', 'p', 's'])
 
@@ -16,6 +12,12 @@ defmodule Pac do
       is_win?(cpu, user) -> " you loose !against '#{cpu}' "
     end
   end
+
+  def user,
+  do:
+    IO.gets("Enter 'p' for paper ,'s' Scissors or 'r' for rock :")
+    |> String.trim
+    |> String.to_charlist
 
   def is_win?(p1, p2),
     do:

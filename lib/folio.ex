@@ -1,18 +1,22 @@
 defmodule USER do
+  @doc """
+    USER.play() to start the game and you make a guess and a computer gives you back
+    instructions 'l' for low , 'b' for big or 'c' for correct answer.
+  """
   @high 100
   def play do
     random = random()
     compare(random)
   end
 
-  def random, do: Enum.random(1..@high)
+  def random,
+    do: Enum.random(1..@high)
 
-  def guess do
-    IO.gets("Enter a value between 1 and #{@high}: ")
-    |> String.split("\n")
-    |> List.first()
-    |> String.to_integer()
-  end
+  def guess,
+    do:
+      IO.gets("Enter a value between 1 and #{@high}: ")
+      |> String.trim()
+      |> String.to_integer()
 
   def compare(random) do
     guess = guess()
