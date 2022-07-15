@@ -1,5 +1,4 @@
 defmodule CPU do
-
   @doc """
     CPU.play() to start the game and you a computer makes a guess and you give back
     instructions 'l' for low , 'b' for big or 'c' for correct answer.
@@ -17,18 +16,15 @@ defmodule CPU do
   end
 
   def new_range,
-    do:
-      %CPU{}
+    do: %CPU{}
 
   def random(struct),
-    do:
-      Enum.random(struct.low..struct.high)
+    do: Enum.random(struct.low..struct.high)
 
   def print(val),
-    do:
-      IO.puts("I guess it's #{val}")
+    do: IO.puts("I guess it's #{val}")
 
-  def feedback ,
+  def feedback,
     do:
       IO.gets("enter feedback 'c' correct 'l' low 'b' big: ")
       |> String.trim()

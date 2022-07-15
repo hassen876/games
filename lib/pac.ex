@@ -1,5 +1,5 @@
 defmodule Pac do
-    @doc """
+  @doc """
     Pac.play() to start the game and you and computer play Rock/paper/scissors
   """
   def play do
@@ -14,10 +14,10 @@ defmodule Pac do
   end
 
   def user,
-  do:
-    IO.gets("Enter 'p' for paper ,'s' Scissors or 'r' for rock :")
-    |> String.trim
-    |> String.to_charlist
+    do:
+      IO.gets("Enter 'p' for paper ,'s' Scissors or 'r' for rock :")
+      |> String.trim()
+      |> String.to_charlist()
 
   def is_win?(p1, p2),
     do:

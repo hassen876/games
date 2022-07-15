@@ -1,6 +1,6 @@
-defmodule Hangman do
+defmodule Hang do
   @moduledoc """
-    start Hangman game with Hangman.play() ,the default level is 0 you will start with 3 letters easy !!!
+    start Hang game with Hangman.play() ,the default level is 0 you will start with 3 letters easy !!!
       level 0 -> words with 3 letters
       level 1 -> words with 4 letters
       level 2 -> words with 5 letters
@@ -13,63 +13,67 @@ defmodule Hangman do
       level 9 -> words with 12 letters
       level 10 -> words with 13 letters
   """
-  defstruct level: 0
-  import Hangman.Data
-
+  defstruct level: 1, word: "", guess: "", guesses: {}, msg: ""
+  import Hang.{Data,Disp}
   def play() do
-    new = new()
-    tup={}
-    word = random_word(new.level)
-    guess = user_input(new.level)
-    IO.inspect({guess, word}, label: "development help ")
-    compare(guess, word, tup, new)
+    game = new_game()
+
+    game
+    |> guess_input()
+    |> random_word()
+    |> compare_guess_word()
   end
-
-  def new(), do: %Hangman{}
-
-  def is_equal?(w1, w2) do
-    cond do
-      w1 == w2 -> true
-      w1 !== w2 -> false
+  def new_game(), do: %Hang{}
+  def guess_input(%Hang{level: level, guesses: guesses} = game) do
+    guess =
+      IO.gets("try Hangman ,enter a word with #{game.level + 3} words: ")|> String.trim("\n")|>String.upcase()
+      if String.length(guess) == level + 3 do
+      %{game | guess: guess, guesses: Tuple.append(guesses, guess)}
+    else
+      guess_input(game)
     end
   end
-
-  defguard check_length(tup) when tuple_size(tup)==6
-
-  def compare(_guess, _word, tup, _new) when check_length(tup) ,do: :game_over
-  def compare(guess, word, tup, new) do
-    case is_equal?(guess, word) do
+  def compare_guess_word(%Hang{guesses: guesses, word: word, guess: guess})
+      when tuple_size(guesses) == 7 and word !== guess,
+      do: "#{error("GAME OVER ")} the word was :#{word}"|>IO.puts
+  def compare_guess_word(%Hang{level: level,word: word, guess: guess, guesses: guesses} = game) do
+    disp(game)
+    case String.equivalent?(word, guess) do
       true ->
-        "Yeeh correct"
-
+        level=level+1
+        game=%{game | msg: :"YOU WIN", level: level,guesses: {} }
+        user=IO.gets("Do you want to continue next level? 'y' for Yes 'n' for NO: ")|>String.trim("\n")|>String.to_charlist()
+        case user do
+          'y'-> game
+                |> guess_input()
+                |> random_word()
+                |> compare_guess_word()
+          'n' ->"Thanks for playing Hangman :-)"
+        end
       false ->
-        tup = Tuple.append(tup, guess)
-        new_guess = user_input(new.level)
-        IO.inspect({new_guess, tup}, label: "dev tools ")
-        compare(new_guess, word, tup, new)
+        %Hang{guess: guess} = guess_input(game)
+        game = %{game | guess: guess, guesses: Tuple.append(guesses, guess)}
+        compare_guess_word(game)
     end
   end
-
-  def random_word(level \\ 0),
-    do:
+  def random_word(%Hang{level: level} = game) do
+    word =
       data()
       |> Enum.filter(&(String.length(&1) == level + 3))
       |> Enum.random()
       |> String.upcase()
 
-  def colorify(text, color) do
-    IO.puts(IO.ANSI.format([color, text]))
+    %{game | word: word}
   end
 
-  def user_input(level) do
-    user =
-      IO.gets("try Hangman ,enter a word with #{level + 3} words: ")
-      |> String.trim("\n")
-
-    if String.length(user) == level + 3 do
-      user |> String.upcase()
-    else
-      user_input(level)
-    end
+  def disp(%Hang{guess: guess, word: word}) do
+    guess=String.codepoints(guess)|>Enum.with_index()
+    word_list=String.codepoints(word)|>Enum.with_index()
+    Enum.map(guess,fn {x,index}-> if Enum.at(guess,index)==Enum.at(word_list,index),
+          do: correct(x), else: if (String.contains?(word,x) and Enum.at(guess,index) !==Enum.at(word_list,index)),
+           do: warn(x), else: normal(x) end)
+    |>Enum.join(" ")
+    |>IO.puts
   end
+
 end
